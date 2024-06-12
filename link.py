@@ -1,10 +1,8 @@
 from selenium import webdriver
-from bs4 import BeautifulSoup
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-import numpy as np
 import joblib
 from sklearn.preprocessing import LabelEncoder
 import time
