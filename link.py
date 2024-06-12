@@ -46,7 +46,8 @@ def retrive_data(link):
     car_title = driver.find_element(By.CSS_SELECTOR,'#layout-desktop > aside > section.at__sc-6sdn0z-0.gAsuwJ > h1').text
     
     price = driver.find_element(By.CLASS_NAME, 'at__sc-6sdn0z-6.kEwOIS').text
-            
+    
+    #web page has 2 seperate grids for data. each stored in seperate array as sometimes size of 1 varies        
     f = driver.find_elements(By.CLASS_NAME,'at__sc-efqqw2-6.gIURrd')
     s = driver.find_elements(By.CLASS_NAME,'at__sc-1n64n0d-7.at__sc-6lr8b9-4.fcDnGr.gJQNgz')
     
@@ -63,6 +64,7 @@ def retrive_data(link):
             
     price = int(price.replace('£','').replace(',','').strip())
     
+    #get reg and miles out of first list
     reg = 0
     miles = 0
     for i in range(0,len(f)):
@@ -71,23 +73,15 @@ def retrive_data(link):
         
         if 'miles' in f[i].text[-5:]:
             miles = int(f[i].text.split(' ')[0].replace(',',''))
-            
+    
+    #second list is more consistent and allows for direct access        
     vec = s[1].text
     fuel = s[0].text
     es = float(s[2].text.replace('L',''))
     tt = s[3].text
     
     driver.find_element(By.XPATH, '//*[@id="layout-desktop"]/article/div[1]/button').click()
-    '''
-    try:#waits till pop up appears
-        element_present = EC.presence_of_element_located((By.XPATH, '/html/body/iframe[1]'))
-        WebDriverWait(driver, 10).until(element_present)
-    except TimeoutException:
-        print ("Timed out waiting for page to load")
-    
-    frame = driver.find_element(By.XPATH, '/html/body/iframe[1]')
-    driver.switch_to.frame(frame)'''
-    
+    #sleep to allow for animations after clicks
     time.sleep(1)
     
     driver.find_element(By.XPATH, '//*[@id="modal-root"]/div[2]/div/section/div[2]/div/div[7]/ul/li/h3/button').click()
@@ -98,6 +92,7 @@ def retrive_data(link):
     
     hp = int(hp[:-4])
     
+    #appending all in order to make array for program use
     data.append(make)
     data.append(model)
     data.append(price)
