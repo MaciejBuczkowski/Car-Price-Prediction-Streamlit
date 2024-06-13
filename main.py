@@ -7,25 +7,44 @@ import pandas as pd
 from valuate import prediction
 import plotly.figure_factory as ff
 import numpy as np
+import plotly.express as px
 
 
 def vis(price_array,car_data):
     cars = db.query(f"SELECT * FROM car_data WHERE make = '{car_data[0]}' AND model = '{car_data[1]}' AND vehicle_type = '{car_data[4]}' AND fuel_type = '{car_data[9]}' AND engine_size = {car_data[6]} AND trans_type = '{car_data[8]}'")
         
-    #get low and high price for range based off model accuracy (using MAPE)
+    #get low and high price for range based off model accuracy (using MAPE from notebook which was 0.11)
     l_price,h_price = int(round(int(price_array[1])*0.89)), int(round(int(price_array[1])*1.11))
     
     if price_array[0] > 0:
         if price_array[0] in range(l_price,h_price):
-            st.success(f'The car is in the correct price range. The estimated value is between {l_price} and {h_price}')
+            st.success(f'The car is in the correct price range. The estimated value is between £{l_price} and £{h_price}')
         elif price_array[0] > h_price:
-            st.error(f'The car is above the predicted price range. The estimated value is between {l_price} and {h_price}')
+            st.error(f'The car is above the predicted price range. The estimated value is between £{l_price} and £{h_price}')
         elif price_array[0] < l_price:
-            st.warning(f'The car is below the predicted price range. The estimated value is between {l_price} and {h_price}')
+            st.warning(f'The car is below the predicted price range. The estimated value is between £{l_price} and £{h_price}')
     else:
         st.info(f'The estimated value for this car is between {l_price} and {h_price}')
         
+    '''based off feature importance graph when all variables are the same the only differenciator 
+    between prices is reg year and milage. so we will do a plot for each showing the car vs 
+    the market data'''
     
+    reg_points = [np.array(cars['price'], cars['reg_year']), np.array([price_array[0],car_data[3]]), np.array([int(price_array[1]),car_data[3]])]
+    reg_labels = ['Market', 'Actual', 'Predicted']
+    
+    fig = ff.create_distplot(reg_points,reg_labels)
+    sc = px.area(reg_points)
+    
+    st.plotly_chart(fig)
+    st.plotly_chart(sc)
+    
+    mil_points = [np.array(cars['price'], cars['reg_year']), np.array([price_array[0],car_data[5]]), np.array([int(price_array[1]),car_data[5]])]
+    mil_labels = ['Market', 'Actual', 'Predicted']
+    
+    fig = ff.create_distplot(mil_points,mil_labels)
+    
+    st.plotly_chart(fig)
     
     
     
@@ -48,7 +67,7 @@ if mode == 'Link':
         
         pred = prediction(data)
         
-        st.write(data)
+        #st.write(data)
         
         vis(pred,data)
     
@@ -158,4 +177,4 @@ elif mode == 'Manual entry':
         
         pred = prediction(data)
         
-        st.write(data)
+        #st.write(data)
