@@ -5,7 +5,30 @@ import joblib
 import psycopg2
 import pandas as pd
 from valuate import prediction
+import plotly.figure_factory as ff
+import numpy as np
 
+
+def vis(price_array,car_data):
+    cars = db.query(f"SELECT * FROM car_data WHERE make = '{car_data[0]}' AND model = '{car_data[1]}' AND vehicle_type = '{car_data[4]}' AND fuel_type = '{car_data[9]}' AND engine_size = {car_data[6]} AND trans_type = '{car_data[8]}'")
+        
+    #get low and high price for range based off model accuracy (using MAPE)
+    l_price,h_price = int(round(int(price_array[1])*0.89)), int(round(int(price_array[1])*1.11))
+    
+    if price_array[0] > 0:
+        if price_array[0] in range(l_price,h_price):
+            st.success(f'The car is in the correct price range. The estimated value is between {l_price} and {h_price}')
+        elif price_array[0] > h_price:
+            st.error(f'The car is above the predicted price range. The estimated value is between {l_price} and {h_price}')
+        elif price_array[0] < l_price:
+            st.warning(f'The car is below the predicted price range. The estimated value is between {l_price} and {h_price}')
+    else:
+        st.info(f'The estimated value for this car is between {l_price} and {h_price}')
+        
+    
+    
+    
+    
 
 db = st.connection('postgresql',type='sql')
 
@@ -26,6 +49,8 @@ if mode == 'Link':
         pred = prediction(data)
         
         st.write(data)
+        
+        vis(pred,data)
     
 elif mode == 'Manual entry':
     st.write('Manual mode')
